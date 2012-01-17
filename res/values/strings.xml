@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, AuthCameraAuthenticatorActivity!</string>
+    <string name="app_name">AuthCameraAuthenticator</string>
+    <string name="switch_cam">Switch camera</string>
+    <string name="camera_alert">Device has only one camera!</string>
+
+</resources>
