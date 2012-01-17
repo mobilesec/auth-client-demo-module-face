@@ -209,6 +209,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 
     public void surfaceCreated(SurfaceHolder holder) {
         mCamera = Camera.open(findFrontCameraId());
+//        mCamera.setDisplayOrientation(90);
         try {
            mCamera.setPreviewDisplay(holder);
         } catch (IOException exception) {
@@ -234,6 +235,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
         // Surface will be destroyed when we return, so stop the preview.
         // Because the CameraDevice object is not a shared resource, it's very
         // important to release it when the activity is paused.
+    	mCamera.stopFaceDetection();
         mCamera.stopPreview();
         mCamera.release();
         mCamera = null;

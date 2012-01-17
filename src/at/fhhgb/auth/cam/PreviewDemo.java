@@ -15,7 +15,7 @@
 package at.fhhgb.auth.cam;
 
 import android.app.Activity;
-import android.content.Context;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Face;
@@ -23,16 +23,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.widget.Toast;
 
 public class PreviewDemo extends Activity {
 	protected static final String TAG = "PreviewDemo";
+	private OverlayView overlay;
 	private SurfaceView preview = null;
 	private SurfaceHolder previewHolder = null;
 	private Camera camera = null;
 	private boolean inPreview = false;
 	private int frontCameraId;
+	private Face[] detectedFaces;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,7 @@ public class PreviewDemo extends Activity {
 		setContentView(R.layout.main);
 
 		preview = (SurfaceView) findViewById(R.id.preview);
+		overlay = (OverlayView) findViewById(R.id.overlay);
 		previewHolder = preview.getHolder();
 		previewHolder.addCallback(surfaceCallback);
 		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
@@ -73,6 +75,7 @@ public class PreviewDemo extends Activity {
 	@Override
 	public void onPause() {
 		if (inPreview) {
+			camera.stopFaceDetection();
 			camera.stopPreview();
 		}
 
@@ -118,10 +121,12 @@ public class PreviewDemo extends Activity {
 
 	    @Override
 	    public void onFaceDetection(Face[] faces, Camera camera) {
+	    	detectedFaces = faces;
 	        if (faces.length > 0){
-	            Log.d(TAG, "face detected: "+ faces.length +
-	                    " Face 1 Location X: " + faces[0].rect.centerX() +
-	                    "Y: " + faces[0].rect.centerY() );
+//	            Log.d(TAG, "face detected at: "+ faces[0].rect );
+	            RectF overlayRect = new RectF(faces[0].rect);
+	            overlay.setOverlayRect(overlayRect);
+	            overlay.postInvalidate();
 	        }
 	    }
 	}
@@ -130,8 +135,6 @@ public class PreviewDemo extends Activity {
 		public void surfaceCreated(SurfaceHolder holder) {
 			try {
 				camera.setPreviewDisplay(previewHolder);
-				camera.startPreview();
-				startFaceDetection();
 			} catch (Throwable t) {
 				Log.e("PreviewDemo-surfaceCallback",
 						"Exception in setPreviewDisplay()", t);
@@ -161,12 +164,4 @@ public class PreviewDemo extends Activity {
 			// no-op
 		}
 	};
-	
-	public class DummyWrapperView extends View {
-
-		public DummyWrapperView(Context context) {
-			super(context);
-		}
-		
-	}
 }
